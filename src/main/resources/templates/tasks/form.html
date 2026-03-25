@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Task Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/tasks" class="brand">Task Manager</a>
+    <a href="/tasks">← Back to list</a>
+</nav>
+
+<div class="container">
+    <div class="card">
+
+        <p class="form-title" th:text="${formTitle}"></p>
+
+        <!-- Create form -->
+        <form th:if="${task.id == null}"
+              th:action="@{/tasks/save}"
+              th:object="${task}"
+              method="post">
+
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text"
+                       th:field="*{title}"
+                       th:class="${#fields.hasErrors('title')}
+                                 ? 'is-error' : ''"
+                       placeholder="Enter task title"/>
+                <span class="error-msg"
+                      th:if="${#fields.hasErrors('title')}"
+                      th:errors="*{title}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea th:field="*{description}"
+                          placeholder="Optional description"
+                          rows="3"></textarea>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:16px;">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select th:field="*{priority}">
+                        <option th:each="p : ${priorities}"
+                                th:value="${p}"
+                                th:text="${p}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" th:field="*{dueDate}"/>
+                </div>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:16px;">
+                <div class="form-group">
+                    <label>Assignee</label>
+                    <input type="text"
+                           th:field="*{assignee}"
+                           placeholder="Person responsible"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text"
+                           th:field="*{tags}"
+                           placeholder="e.g. backend, urgent"/>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit"
+                        class="btn btn-success">
+                    Save Task
+                </button>
+                <a href="/tasks"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+
+        <!-- Edit form -->
+        <form th:if="${task.id != null}"
+              th:action="@{/tasks/update/{id}(id=${task.id})}"
+              th:object="${task}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text"
+                       th:field="*{title}"
+                       th:class="${#fields.hasErrors('title')}
+                                 ? 'is-error' : ''"
+                       placeholder="Enter task title"/>
+                <span class="error-msg"
+                      th:if="${#fields.hasErrors('title')}"
+                      th:errors="*{title}"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea th:field="*{description}"
+                          placeholder="Optional description"
+                          rows="3"></textarea>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:16px;">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select th:field="*{priority}">
+                        <option th:each="p : ${priorities}"
+                                th:value="${p}"
+                                th:text="${p}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" th:field="*{dueDate}"/>
+                </div>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:16px;">
+                <div class="form-group">
+                    <label>Assignee</label>
+                    <input type="text"
+                           th:field="*{assignee}"
+                           placeholder="Person responsible"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Tags</label>
+                    <input type="text"
+                           th:field="*{tags}"
+                           placeholder="e.g. backend, urgent"/>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit"
+                        class="btn btn-success">
+                    Update Task
+                </button>
+                <a href="/tasks"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

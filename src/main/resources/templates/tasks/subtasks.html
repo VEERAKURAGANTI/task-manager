@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Subtasks</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/tasks" class="brand">Task Manager</a>
+    <a href="/tasks">← Back to list</a>
+</nav>
+
+<div class="container">
+
+    <!-- Flash messages -->
+    <div th:if="${successMessage}"
+         class="alert alert-success"
+         th:text="${successMessage}"></div>
+
+    <!-- Parent task info card -->
+    <div class="card" style="margin-bottom:24px;">
+        <p class="form-title"
+           th:text="'Subtasks for: ' + ${parent.title}"></p>
+        <div style="display:flex; gap:24px; font-size:14px;
+                    color:#666; flex-wrap:wrap;">
+            <span>Priority:
+                <strong th:text="${parent.priority}"></strong>
+            </span>
+            <span>Status:
+                <strong th:text="${parent.status}"></strong>
+            </span>
+            <span th:if="${parent.dueDate != null}">
+                Due: <strong th:text="${parent.dueDate}"></strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- Existing subtasks table -->
+    <div class="page-header">
+        <h1>Subtasks</h1>
+    </div>
+
+    <table style="margin-bottom:32px;">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Due Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="sub, i : ${subtasks}">
+                <td th:text="${i.count}"></td>
+                <td th:text="${sub.title}"></td>
+                <td>
+                    <span th:text="${sub.priority}"
+                          th:class="${sub.priority.name() == 'CRITICAL'
+                                  or sub.priority.name() == 'HIGH'} ? 'badge badge-high'
+                                  : ${sub.priority.name() == 'MEDIUM'} ? 'badge badge-medium'
+                                  : 'badge badge-low'">
+                    </span>
+                </td>
+                <td>
+                    <span th:text="${sub.status}"
+                          th:class="${sub.status.name() == 'TODO'}        ? 'badge badge-todo'
+                                  : ${sub.status.name() == 'IN_PROGRESS'} ? 'badge badge-in-progress'
+                                  : 'badge badge-done'">
+                    </span>
+                </td>
+                <td th:text="${sub.dueDate} ?: '—'"></td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(subtasks)}">
+                <td colspan="5" class="empty-state">
+                    No subtasks yet. Add one below.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Add subtask form -->
+    <div class="card">
+        <p class="form-title">Add New Subtask</p>
+
+        <form th:action="@{/tasks/{id}/subtasks/add(id=${parent.id})}"
+              th:object="${newSubtask}"
+              method="post">
+
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text"
+                       th:field="*{title}"
+                       placeholder="Subtask title"
+                       required/>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:16px;">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select th:field="*{priority}">
+                        <option th:each="p : ${priorities}"
+                                th:value="${p}"
+                                th:text="${p}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" th:field="*{dueDate}"/>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit"
+                        class="btn btn-success">
+                    Add Subtask
+                </button>
+                <a href="/tasks"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

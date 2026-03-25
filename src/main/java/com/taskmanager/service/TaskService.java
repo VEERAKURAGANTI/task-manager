@@ -1,0 +1,167 @@
+package com.taskmanager.service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import com.taskmanager.model.Task;
+import com.taskmanager.model.Task.TaskStatus;
+import com.taskmanager.observer.TaskEvent;
+import com.taskmanager.repository.TaskRepository;
+import com.taskmanager.state.TaskState;
+import com.taskmanager.strategy.TaskSortStrategy;
+
+@Service
+public class TaskService {
+	private final TaskRepository taskRepository;
+	private final ApplicationEventPublisher eventPublisher;
+
+	private final TaskSortStrategy sortByDueDate;
+	private final TaskSortStrategy sortByPriority;
+
+	private final TaskState todoState;
+	private final TaskState inProgressState;
+	private final TaskState doneState;
+
+	public TaskService(TaskRepository taskRepository, ApplicationEventPublisher eventPublisher,
+			@Qualifier("sortByDueDate") TaskSortStrategy sortByDueDate,
+			@Qualifier("sortByPriority") TaskSortStrategy sortByPriority, @Qualifier("todoState") TaskState todoState,
+			@Qualifier("inProgressState") TaskState inProgressState, @Qualifier("doneState") TaskState doneState) {
+
+		this.taskRepository = taskRepository;
+		this.eventPublisher = eventPublisher;
+		this.sortByDueDate = sortByDueDate;
+		this.sortByPriority = sortByPriority;
+		this.todoState = todoState;
+		this.inProgressState = inProgressState;
+		this.doneState = doneState;
+	}
+
+	// Get all tasks — with optional sorting (Strategy pattern)
+	public List<Task> getAllTasks(String sortBy) {
+		List<Task> tasks = taskRepository.findByParentIsNull();
+
+		if ("priority".equalsIgnoreCase(sortBy)) {
+			return sortByPriority.sort(tasks);
+		} else if ("dueDate".equalsIgnoreCase(sortBy)) {
+			return sortByDueDate.sort(tasks);
+		}
+		return tasks;
+	}
+
+	public Task getTaskById(Long id) {
+		return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+	}
+
+	public Task createTask(Task task) {
+
+		task.setStatus(TaskStatus.TODO);
+		Task saved = taskRepository.save(task);
+		eventPublisher.publishEvent(new TaskEvent(this, saved, "CREATED"));
+		return saved;
+	}
+
+	public Task updateTask(Long id, Task updated) {
+		Task task = getTaskById(id);
+		task.setTitle(updated.getTitle());
+		task.setDescription(updated.getDescription());
+		task.setPriority(updated.getPriority());
+		task.setDueDate(updated.getDueDate());
+		task.setAssignee(updated.getAssignee());
+		task.setTags(updated.getTags());
+
+		Task saved = taskRepository.save(task);
+
+		eventPublisher.publishEvent(new TaskEvent(this, saved, "UPDATED"));
+
+		return saved;
+	}
+
+	public void deleteTask(Long id) {
+		Task task = getTaskById(id);
+		taskRepository.deleteById(id);
+
+		eventPublisher.publishEvent(new TaskEvent(this, task, "DELETED"));
+	}
+
+	public Task startProgress(long id) {
+		Task task = getTaskById(id);
+		TaskState state = resolveState(task.getStatus());
+		state.startProgress(task); // TodoState handles this
+		Task saved = taskRepository.save(task);
+
+		eventPublisher.publishEvent(new TaskEvent(this, saved, "STATUS → IN_PROGRESS"));
+		return saved;
+
+	}
+	 public Task completeTask(Long id) {
+	        Task task  = getTaskById(id);
+	        TaskState state = resolveState(task.getStatus());
+	        state.completeTask(task);         // InProgressState handles this
+	        Task saved = taskRepository.save(task);
+
+	        eventPublisher.publishEvent(
+	            new TaskEvent(this, saved, "STATUS → DONE"));
+	        return saved;
+	    }
+
+	    public Task reopenTask(Long id) {
+	        Task task  = getTaskById(id);
+	        TaskState state = resolveState(task.getStatus());
+	        state.reopenTask(task);           // DoneState or InProgressState
+	        Task saved = taskRepository.save(task);
+
+	        eventPublisher.publishEvent(
+	            new TaskEvent(this, saved, "STATUS → TODO"));
+	        return saved;
+	    }
+
+	    // Composite — subtask operations
+
+	    public Task addSubtask(Long parentId, Task subtask) {
+	        Task parent = getTaskById(parentId);
+	        subtask.setParent(parent);
+	        subtask.setStatus(TaskStatus.TODO);
+	        Task saved = taskRepository.save(subtask);
+
+	        eventPublisher.publishEvent(
+	            new TaskEvent(this, saved, "SUBTASK ADDED"));
+	        return saved;
+	    }
+
+	    public List<Task> getSubtasks(Long parentId) {
+	        return taskRepository.findByParentId(parentId);
+	    }
+
+	    //Filter operations 
+
+	    public List<Task> getByStatus(TaskStatus status) {
+	        return taskRepository.findBySubtask(status);
+	    }
+
+	    public List<Task> getByPriority(Task.TaskPriority priority) {
+	        return taskRepository.findByPriority(priority);
+	    }
+
+	    public List<Task> searchByTitle(String keyword) {
+	        return taskRepository.findByTitleContainingIgnoreCase(keyword);
+	    }
+
+	    public List<Task> getOverdueTasks() {
+	        return taskRepository.findOverdueTasks(LocalDate.now());
+	    }
+
+
+	// picks the right State object based on current task status
+	private TaskState resolveState(TaskStatus status) {
+		return switch (status) {
+		case TODO -> todoState;
+		case IN_PROGRESS -> inProgressState;
+		case DONE -> doneState;
+		};
+	}
+
+}

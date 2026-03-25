@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Task Manager</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/tasks" class="brand">Task Manager</a>
+    <a href="/tasks/new" class="btn btn-primary btn-sm">+ New Task</a>
+</nav>
+
+<div class="container">
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="page-header">
+        <h1>All Tasks</h1>
+    </div>
+
+    <form th:action="@{/tasks}" method="get" style="display:flex; gap:8px; margin-bottom:16px;">
+        <input type="text" name="keyword" th:value="${keyword}"
+               placeholder="Search by title..."
+               style="flex:1; padding:8px 12px; border:1px solid #d5d8dc; border-radius:6px; font-size:14px;"/>
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a href="/tasks" class="btn btn-secondary">Clear</a>
+    </form>
+
+    <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+        <a href="/tasks" class="btn btn-sm btn-secondary">All</a>
+        <a href="/tasks?sortBy=priority" class="btn btn-sm btn-secondary">Sort by Priority</a>
+        <a href="/tasks?sortBy=dueDate" class="btn btn-sm btn-secondary">Sort by Due Date</a>
+        <a href="/tasks?status=TODO" class="btn btn-sm btn-secondary">Todo</a>
+        <a href="/tasks?status=IN_PROGRESS" class="btn btn-sm btn-secondary">In Progress</a>
+        <a href="/tasks?status=DONE" class="btn btn-sm btn-secondary">Done</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assignee</th>
+                <th>Due Date</th>
+                <th>Subtasks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="task, i : ${tasks}">
+
+                <td th:text="${i.count}"></td>
+
+                <td>
+                    <span th:text="${task.title}"></span>
+                    <br/>
+                    <small th:if="${task.tags != null and !#strings.isEmpty(task.tags)}"
+                           style="color:#999;" th:text="${task.tags}"></small>
+                </td>
+
+                <!-- Priority badge using th:if per badge -->
+                <td>
+                    <span th:if="${task.priority.name() == 'CRITICAL'}" class="badge badge-high" th:text="${task.priority}"></span>
+                    <span th:if="${task.priority.name() == 'HIGH'}"     class="badge badge-high" th:text="${task.priority}"></span>
+                    <span th:if="${task.priority.name() == 'MEDIUM'}"   class="badge badge-medium" th:text="${task.priority}"></span>
+                    <span th:if="${task.priority.name() == 'LOW'}"      class="badge badge-low" th:text="${task.priority}"></span>
+                </td>
+
+                <!-- Status badge using th:if per badge -->
+                <td>
+                    <span th:if="${task.status.name() == 'TODO'}"        class="badge badge-todo" th:text="${task.status}"></span>
+                    <span th:if="${task.status.name() == 'IN_PROGRESS'}" class="badge badge-in-progress" th:text="${task.status}"></span>
+                    <span th:if="${task.status.name() == 'DONE'}"        class="badge badge-done" th:text="${task.status}"></span>
+                </td>
+
+                <td th:text="${task.assignee} ?: '—'"></td>
+                <td th:text="${task.dueDate}  ?: '—'"></td>
+
+                <td>
+                   
+                     <a th:href="@{/tasks/{id}/subtasks(id=${task.id})}"
+                     class="btn btn-sm btn-secondary">Subtasks</a>
+                  
+                <td>
+                    <div class="actions">
+                        <a th:href="@{/tasks/edit/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-primary">Edit</a>
+
+                        <a th:if="${task.status.name() == 'TODO'}"
+                           th:href="@{/tasks/start/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-success">Start</a>
+
+                        <a th:if="${task.status.name() == 'IN_PROGRESS'}"
+                           th:href="@{/tasks/complete/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-success">Complete</a>
+
+                        <a th:if="${task.status.name() == 'IN_PROGRESS' or task.status.name() == 'DONE'}"
+                           th:href="@{/tasks/reopen/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-secondary">Reopen</a>
+
+                        <a th:href="@{/tasks/delete/{id}(id=${task.id})}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Delete this task?')">Delete</a>
+                    </div>
+                </td>
+
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(tasks)}">
+                <td colspan="8" class="empty-state">
+                    No tasks found. Click + New Task to get started.
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
