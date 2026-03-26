@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Error</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/tasks" class="brand">Task Manager</a>
+    <a href="/tasks">← Back to list</a>
+</nav>
+
+<div class="container">
+    <div class="card" style="text-align:center; padding:60px 40px;">
+
+        <div style="font-size:72px; font-weight:600;
+                    color:#2c3e50; margin-bottom:16px;"
+             th:text="${errorCode}">
+        </div>
+
+        <h1 style="font-size:24px; color:#2c3e50;
+                   margin-bottom:12px;"
+            th:text="${errorTitle}">
+        </h1>
+
+        <p style="color:#666; font-size:15px;
+                  margin-bottom:32px;"
+           th:text="${errorMessage}">
+        </p>
+
+        <a href="/tasks" class="btn btn-primary">
+            Go back to Task List
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>

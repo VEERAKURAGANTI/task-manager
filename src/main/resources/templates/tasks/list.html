@@ -83,9 +83,14 @@
 
                 <td>
                    
-                     <a th:href="@{/tasks/{id}/subtasks(id=${task.id})}"
-                     class="btn btn-sm btn-secondary">Subtasks</a>
-                  
+                  <!--    <a th:href="@{/tasks/{id}/subtasks(id=${task.id})}"
+                     class="btn btn-sm btn-secondary">Subtasks</a> -->
+                   
+                      <span th:text="${#lists.size(task.subtask)} + ' subtasks'"></span>
+                          <br/>
+                      <a th:href="@{/tasks/{id}/subtasks(id=${task.id})}"
+                            class="btn btn-sm btn-secondary">View</a>
+                         
                 <td>
                     <div class="actions">
                         <a th:href="@{/tasks/edit/{id}(id=${task.id})}"

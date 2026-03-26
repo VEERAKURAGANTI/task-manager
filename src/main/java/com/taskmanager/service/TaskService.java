@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.taskmanager.exception.TaskNotFoundException;
 import com.taskmanager.model.Task;
 import com.taskmanager.model.Task.TaskStatus;
 import com.taskmanager.observer.TaskEvent;
@@ -14,7 +16,10 @@ import com.taskmanager.repository.TaskRepository;
 import com.taskmanager.state.TaskState;
 import com.taskmanager.strategy.TaskSortStrategy;
 
+
+
 @Service
+@Transactional
 public class TaskService {
 	private final TaskRepository taskRepository;
 	private final ApplicationEventPublisher eventPublisher;
@@ -53,7 +58,9 @@ public class TaskService {
 	}
 
 	public Task getTaskById(Long id) {
-		return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+		return taskRepository.findById(id)
+			    .orElseThrow(() ->
+		        new TaskNotFoundException(id));
 	}
 
 	public Task createTask(Task task) {
@@ -72,7 +79,7 @@ public class TaskService {
 		task.setDueDate(updated.getDueDate());
 		task.setAssignee(updated.getAssignee());
 		task.setTags(updated.getTags());
-
+		task.setStatus(updated.getStatus());
 		Task saved = taskRepository.save(task);
 
 		eventPublisher.publishEvent(new TaskEvent(this, saved, "UPDATED"));
@@ -81,9 +88,9 @@ public class TaskService {
 	}
 
 	public void deleteTask(Long id) {
+		System.out.println("delete");
 		Task task = getTaskById(id);
 		taskRepository.deleteById(id);
-
 		eventPublisher.publishEvent(new TaskEvent(this, task, "DELETED"));
 	}
 
@@ -123,8 +130,11 @@ public class TaskService {
 
 	    public Task addSubtask(Long parentId, Task subtask) {
 	        Task parent = getTaskById(parentId);
+	        subtask.setId(null);
 	        subtask.setParent(parent);
+	        parent.getSubtask().add(subtask); 
 	        subtask.setStatus(TaskStatus.TODO);
+	        subtask.setAssignee(parent.getAssignee());
 	        Task saved = taskRepository.save(subtask);
 
 	        eventPublisher.publishEvent(
@@ -132,6 +142,20 @@ public class TaskService {
 	        return saved;
 	    }
 
+	    public void deleteSubtask(Long subtaskId) {
+	        Task subtask = getTaskById(subtaskId);
+
+	       
+	        if (subtask.getParent() != null) {
+	            subtask.getParent().getSubtask().remove(subtask);
+	        }
+
+	        taskRepository.deleteById(subtaskId);
+
+	        eventPublisher.publishEvent(
+	            new TaskEvent(this, subtask, "SUBTASK DELETED"));
+	    }
+	    
 	    public List<Task> getSubtasks(Long parentId) {
 	        return taskRepository.findByParentId(parentId);
 	    }
@@ -139,7 +163,7 @@ public class TaskService {
 	    //Filter operations 
 
 	    public List<Task> getByStatus(TaskStatus status) {
-	        return taskRepository.findBySubtask(status);
+	        return taskRepository.findByStatus(status);
 	    }
 
 	    public List<Task> getByPriority(Task.TaskPriority priority) {

@@ -50,29 +50,52 @@
                 <th>Priority</th>
                 <th>Status</th>
                 <th>Due Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="sub, i : ${subtasks}">
                 <td th:text="${i.count}"></td>
                 <td th:text="${sub.title}"></td>
+                 <!-- Priority badge — one th:if per span -->
                 <td>
-                    <span th:text="${sub.priority}"
-                          th:class="${sub.priority.name() == 'CRITICAL'
-                                  or sub.priority.name() == 'HIGH'} ? 'badge badge-high'
-                                  : ${sub.priority.name() == 'MEDIUM'} ? 'badge badge-medium'
-                                  : 'badge badge-low'">
-                    </span>
+                    <span th:if="${sub.priority.name() == 'CRITICAL'}"
+                          class="badge badge-high"
+                          th:text="${sub.priority}"></span>
+                    <span th:if="${sub.priority.name() == 'HIGH'}"
+                          class="badge badge-high"
+                          th:text="${sub.priority}"></span>
+                    <span th:if="${sub.priority.name() == 'MEDIUM'}"
+                          class="badge badge-medium"
+                          th:text="${sub.priority}"></span>
+                    <span th:if="${sub.priority.name() == 'LOW'}"
+                          class="badge badge-low"
+                          th:text="${sub.priority}"></span>
                 </td>
+                <!-- Status badge — one th:if per span -->
                 <td>
-                    <span th:text="${sub.status}"
-                          th:class="${sub.status.name() == 'TODO'}        ? 'badge badge-todo'
-                                  : ${sub.status.name() == 'IN_PROGRESS'} ? 'badge badge-in-progress'
-                                  : 'badge badge-done'">
-                    </span>
+                    <span th:if="${sub.status.name() == 'TODO'}"
+                          class="badge badge-todo"
+                          th:text="${sub.status}"></span>
+                    <span th:if="${sub.status.name() == 'IN_PROGRESS'}"
+                          class="badge badge-in-progress"
+                          th:text="${sub.status}"></span>
+                    <span th:if="${sub.status.name() == 'DONE'}"
+                          class="badge badge-done"
+                          th:text="${sub.status}"></span>
                 </td>
+
                 <td th:text="${sub.dueDate} ?: '—'"></td>
+                <td>
+                       <a th:href="@{/tasks/{parentId}/subtasks/delete/{subtaskId}
+                          (parentId=${parent.id}, subtaskId=${sub.id})}"
+                        class="btn btn-sm btn-danger"
+                        onclick="return confirm('Delete this subtask?')">
+                       Delete
+                       </a>
+                </td>
             </tr>
+            
 
             <tr th:if="${#lists.isEmpty(subtasks)}">
                 <td colspan="5" class="empty-state">

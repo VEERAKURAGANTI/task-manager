@@ -107,7 +107,7 @@ public class TaskController {
 	@GetMapping("/delete/{id}")
 	public String deleteTask(@PathVariable Long id, RedirectAttributes redirectAttrs) {
 		taskService.deleteTask(id);
-
+        System.out.println("end point hit");
 		redirectAttrs.addFlashAttribute("successMessage", "Task deleted successfully!");
 
 		return "redirect:/tasks";
@@ -166,6 +166,23 @@ public class TaskController {
 
 		return "redirect:/tasks/" + id + "/subtasks";
 	}
+	
+	
+	@GetMapping("/{parentId}/subtasks/delete/{subtaskId}")
+	public String deleteSubtask(@PathVariable Long parentId,
+	                            @PathVariable Long subtaskId,
+	                            RedirectAttributes redirectAttrs) {
+	    try {
+	        taskService.deleteSubtask(subtaskId);
+	        redirectAttrs.addFlashAttribute("successMessage",
+	            "Subtask deleted successfully!");
+	    } catch (Exception e) {
+	        redirectAttrs.addFlashAttribute("errorMessage",
+	            "Could not delete subtask: " + e.getMessage());
+	    }
+	    return "redirect:/tasks/" + parentId + "/subtasks";
+	}
+	
 
 	@GetMapping("/")
 	public String home() {
