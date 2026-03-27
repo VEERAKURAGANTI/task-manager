@@ -45,7 +45,7 @@ public class TaskService {
 		this.doneState = doneState;
 	}
 
-	// Get all tasks — with optional sorting (Strategy pattern)
+	// Get all tasks — with optional sorting 
 	public List<Task> getAllTasks(String sortBy) {
 		List<Task> tasks = taskRepository.findByParentIsNull();
 
@@ -88,7 +88,6 @@ public class TaskService {
 	}
 
 	public void deleteTask(Long id) {
-		System.out.println("delete");
 		Task task = getTaskById(id);
 		taskRepository.deleteById(id);
 		eventPublisher.publishEvent(new TaskEvent(this, task, "DELETED"));
