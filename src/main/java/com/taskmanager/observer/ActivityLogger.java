@@ -1,8 +1,6 @@
 package com.taskmanager.observer;
 
 
-
-
 import java.time.LocalDateTime;
 
 import org.springframework.context.event.EventListener;
