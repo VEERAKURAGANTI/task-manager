@@ -46,7 +46,7 @@ public class Task {
 	
 	private LocalDate dueDate;
 
-	// Enums
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TaskPriority priority = TaskPriority.MEDIUM;
