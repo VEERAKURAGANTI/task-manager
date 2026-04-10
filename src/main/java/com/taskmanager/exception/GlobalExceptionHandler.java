@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 	        return "error";
 	    }
 
-	    // ── Any other unexpected error ─────────────────────
+	 
 	    @ExceptionHandler(Exception.class)
 	    public String handleGeneral(Exception ex, Model model) {
 	        log.error("Unexpected error: {}", ex.getMessage());
