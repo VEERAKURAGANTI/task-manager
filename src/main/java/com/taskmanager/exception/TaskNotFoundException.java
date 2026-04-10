@@ -11,5 +11,4 @@ public class TaskNotFoundException extends RuntimeException{
 	 public Long getTaskId() {
 	        return taskId;
 	    }
-	
 }
