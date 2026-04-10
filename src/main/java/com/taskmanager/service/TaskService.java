@@ -106,7 +106,7 @@ public class TaskService {
 	 public Task completeTask(Long id) {
 	        Task task  = getTaskById(id);
 	        TaskState state = resolveState(task.getStatus());
-	        state.completeTask(task);         // InProgressState handles this
+	        state.completeTask(task);        
 	        Task saved = taskRepository.save(task);
 
 	        eventPublisher.publishEvent(
