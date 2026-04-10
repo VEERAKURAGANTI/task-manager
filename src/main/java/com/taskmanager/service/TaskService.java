@@ -117,7 +117,7 @@ public class TaskService {
 	    public Task reopenTask(Long id) {
 	        Task task  = getTaskById(id);
 	        TaskState state = resolveState(task.getStatus());
-	        state.reopenTask(task);           // DoneState or InProgressState
+	        state.reopenTask(task);           
 	        Task saved = taskRepository.save(task);
 
 	        eventPublisher.publishEvent(
