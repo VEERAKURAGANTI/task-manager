@@ -45,7 +45,7 @@ public class TaskService {
 		this.doneState = doneState;
 	}
 
-	// Get all tasks — with optional sorting 
+	
 	public List<Task> getAllTasks(String sortBy) {
 		List<Task> tasks = taskRepository.findByParentIsNull();
 
