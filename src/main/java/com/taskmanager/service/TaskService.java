@@ -96,7 +96,7 @@ public class TaskService {
 	public Task startProgress(long id) {
 		Task task = getTaskById(id);
 		TaskState state = resolveState(task.getStatus());
-		state.startProgress(task); // TodoState handles this
+		state.startProgress(task); 
 		Task saved = taskRepository.save(task);
 
 		eventPublisher.publishEvent(new TaskEvent(this, saved, "STATUS → IN_PROGRESS"));
