@@ -159,7 +159,7 @@ public class TaskService {
 	        return taskRepository.findByParentId(parentId);
 	    }
 
-	    //Filter operations 
+	    
 
 	    public List<Task> getByStatus(TaskStatus status) {
 	        return taskRepository.findByStatus(status);
