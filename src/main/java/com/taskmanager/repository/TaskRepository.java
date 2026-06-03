@@ -34,7 +34,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // search tasks by keyword in title (case-insensitive)
     List<Task> findByTitleContainingIgnoreCase(String keyword);
 
-    // ── Due date queries ───────────────────────────────
+    // ── Due date queries
 
     // find tasks due before a certain date  e.g. overdue tasks
     List<Task> findByDueDateBefore(LocalDate date);
