@@ -15,7 +15,7 @@ import com.taskmanager.model.Task.TaskStatus;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    // ── Basic finders ──────────────────────────────────
+    // ── Basic finders 
 
     // find all tasks by status  e.g. TODO / IN_PROGRESS / DONE
     List<Task> findByStatus(TaskStatus status);
