@@ -79,7 +79,7 @@ public class Task {
 		TODO, IN_PROGRESS, DONE
 	}
 
-	// Helper method (Composite)
+
 	public boolean isComposite() {
 		return subtask != null && !subtask.isEmpty();
 	}
