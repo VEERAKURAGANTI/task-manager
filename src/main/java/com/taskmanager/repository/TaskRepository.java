@@ -29,7 +29,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // find all subtasks of a specific parent task
     List<Task> findByParentId(Long parentId);
 
-    // ── Search ─────────────────────────────────────────
+    // ── Search 
 
     // search tasks by keyword in title (case-insensitive)
     List<Task> findByTitleContainingIgnoreCase(String keyword);
