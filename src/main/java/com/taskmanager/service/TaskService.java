@@ -178,7 +178,7 @@ public class TaskService {
 	    }
 
 
-	// picks the right State object based on current task status
+	
 	private TaskState resolveState(TaskStatus status) {
 		return switch (status) {
 		case TODO -> todoState;
