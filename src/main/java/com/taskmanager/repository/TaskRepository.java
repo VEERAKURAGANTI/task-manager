@@ -42,7 +42,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // find tasks due between two dates
     List<Task> findByDueDateBetween(LocalDate start, LocalDate end);
 
-    // ── Custom JPQL queries ────────────────────────────
+    // ── Custom JPQL queries 
 
     // find tasks by assignee name
     @Query("SELECT t FROM Task t WHERE t.assignee = :assignee")
