@@ -17,7 +17,6 @@ public class ActivityLogger {
    @EventListener
    public void onTaskEvent(TaskEvent event) {
        Task task = event.getTask();
-
        log.info("─────────────────────────────────────────");
        log.info("  ACTION   : {}", event.getAction());
        log.info("  Task ID  : {}", task.getId());
