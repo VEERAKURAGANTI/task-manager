@@ -1,5 +1,5 @@
 package com.taskmanager.strategy;
-//import the List class
+
 import java.util.List;
 
 import com.taskmanager.model.Task;
