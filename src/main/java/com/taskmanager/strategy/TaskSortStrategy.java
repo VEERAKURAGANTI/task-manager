@@ -3,7 +3,7 @@ package com.taskmanager.strategy;
 import java.util.List;
 //import the Task class from the model package
 import com.taskmanager.model.Task;
-//sort the task
+
 public interface TaskSortStrategy {
 	List<Task> sort(List<Task> tasks);
 }
